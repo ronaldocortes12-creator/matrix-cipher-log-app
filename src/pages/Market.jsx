@@ -1,14 +1,34 @@
+import { useEffect, useState } from 'react'
 import TabBar from '../components/TabBar'
-import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react'
+import { CryptoCard } from '../components/CryptoCard'
+import { TrendingUp, Loader2 } from 'lucide-react'
+import { TOP_CRYPTOS, fetchCryptoData } from '../lib/cryptoData'
 
 const Market = () => {
-  // Placeholder data - será substituído por dados reais posteriormente
-  const cryptos = [
-    { symbol: 'BTC', name: 'Bitcoin', price: 67234.50, change: 2.34, trending: 'up' },
-    { symbol: 'ETH', name: 'Ethereum', price: 3456.78, change: -1.23, trending: 'down' },
-    { symbol: 'BNB', name: 'Binance Coin', price: 456.12, change: 0.89, trending: 'up' },
-    { symbol: 'SOL', name: 'Solana', price: 123.45, change: 5.67, trending: 'up' },
-  ]
+  const [cryptoData, setCryptoData] = useState({})
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    loadCryptoData()
+  }, [])
+
+  const loadCryptoData = async () => {
+    setIsLoading(true)
+    const data = {}
+
+    // Load data for all cryptos
+    for (const crypto of TOP_CRYPTOS) {
+      try {
+        const cryptoInfo = await fetchCryptoData(crypto.id)
+        data[crypto.id] = cryptoInfo
+      } catch (error) {
+        console.error(`Error loading data for ${crypto.symbol}:`, error)
+      }
+    }
+
+    setCryptoData(data)
+    setIsLoading(false)
+  }
 
   return (
     <div className="min-h-screen pb-24 bg-background">
@@ -17,64 +37,54 @@ const Market = () => {
         <div className="max-w-screen-xl mx-auto px-6 py-8">
           <div className="flex items-center gap-3">
             <TrendingUp className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Mercado</h1>
+            <h1 className="text-3xl font-bold">Mercado Cripto</h1>
           </div>
           <p className="text-muted-foreground mt-2">
-            Acompanhe os principais ativos em tempo real
+            Análise estatística das 20 principais criptomoedas com base em 3 anos de dados históricos
           </p>
         </div>
       </div>
 
-      {/* Market List */}
-      <div className="max-w-screen-xl mx-auto px-6 py-8">
-        <div className="bg-card/80 backdrop-blur-sm rounded-xl border border-border overflow-hidden">
-          {cryptos.map((crypto, index) => (
-            <div
-              key={crypto.symbol}
-              className={`flex items-center justify-between p-6 hover:bg-muted/20 transition-colors ${
-                index !== cryptos.length - 1 ? 'border-b border-border' : ''
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
-                  <DollarSign className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <p className="font-bold text-lg">{crypto.symbol}</p>
-                  <p className="text-sm text-muted-foreground">{crypto.name}</p>
-                </div>
-              </div>
+      {/* Loading State */}
+      {isLoading && (
+        <div className="max-w-screen-xl mx-auto px-6 py-12 flex flex-col items-center justify-center">
+          <Loader2 className="h-12 w-12 text-primary animate-spin mb-4" />
+          <p className="text-muted-foreground">Carregando dados do mercado...</p>
+        </div>
+      )}
 
-              <div className="text-right">
-                <p className="font-bold text-lg">
-                  ${crypto.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </p>
-                <div
-                  className={`flex items-center gap-1 justify-end ${
-                    crypto.trending === 'up' ? 'text-primary' : 'text-destructive'
-                  }`}
-                >
-                  {crypto.trending === 'up' ? (
-                    <TrendingUp className="h-4 w-4" />
-                  ) : (
-                    <TrendingDown className="h-4 w-4" />
-                  )}
-                  <span className="text-sm font-medium">
-                    {crypto.change > 0 ? '+' : ''}
-                    {crypto.change}%
-                  </span>
-                </div>
-              </div>
+      {/* Crypto Grid */}
+      {!isLoading && (
+        <div className="max-w-screen-xl mx-auto px-6 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {TOP_CRYPTOS.map((crypto) => (
+              cryptoData[crypto.id] && (
+                <CryptoCard
+                  key={crypto.id}
+                  crypto={crypto}
+                  data={cryptoData[crypto.id]}
+                />
+              )
+            ))}
+          </div>
+
+          {/* Info Box */}
+          <div className="mt-8 glass rounded-xl p-6 border border-border">
+            <h3 className="font-bold text-lg mb-3">📊 Sobre a Análise</h3>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <p>
+                <strong>Probabilidade de Queda:</strong> Calculada com base na distribuição normal dos preços históricos dos últimos 3 anos. Valores acima de 50% indicam que o preço atual está acima da média histórica.
+              </p>
+              <p>
+                <strong>Range de Preço:</strong> Intervalo de confiança de 95% baseado no desvio padrão dos preços históricos. Indica a faixa de preço esperada com alta probabilidade.
+              </p>
+              <p>
+                <strong>Metodologia:</strong> Análise estatística utilizando curva de distribuição normal (Gaussiana) aplicada aos dados históricos de preço dos últimos 3 anos (1.095 dias).
+              </p>
             </div>
-          ))}
+          </div>
         </div>
-
-        <div className="mt-6 bg-secondary/10 border border-secondary/30 rounded-xl p-6">
-          <p className="text-sm text-center text-muted-foreground">
-            💡 <strong>Em breve:</strong> Dados em tempo real, gráficos avançados e análises personalizadas
-          </p>
-        </div>
-      </div>
+      )}
 
       <TabBar />
     </div>

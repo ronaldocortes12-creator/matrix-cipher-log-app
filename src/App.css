@@ -42,73 +42,73 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  /* Paleta Global Institute of Cripto */
-  --background: #011c37; /* Azul escuro primário */
-  --foreground: #fbffff; /* Branco off-white */
-  --card: #001b36; /* Azul escuro secundário */
-  --card-foreground: #fbffff;
-  --popover: #001b36;
-  --popover-foreground: #fbffff;
+  --radius: 0.75rem;
+  /* Paleta Global Institute of Cripto - Premium & Futurista */
+  --background: #000d1a; /* Azul escuro premium */
+  --foreground: #f0f4f8; /* Branco suave */
+  --card: #001020; /* Azul escuro card */
+  --card-foreground: #f0f4f8;
+  --popover: #001020;
+  --popover-foreground: #f0f4f8;
   --primary: #00ff9f; /* Verde ciano - acento primário */
-  --primary-foreground: #011c37;
+  --primary-foreground: #000d1a;
   --secondary: #00d4ff; /* Azul elétrico - acento secundário */
-  --secondary-foreground: #011c37;
-  --muted: #021d38;
+  --secondary-foreground: #000d1a;
+  --muted: #001428;
   --muted-foreground: #8b9bb0;
   --accent: #00ff9f;
-  --accent-foreground: #011c37;
+  --accent-foreground: #000d1a;
   --destructive: #ff4444;
-  --border: #021d38;
-  --input: #001b36;
+  --border: #001428;
+  --input: #001020;
   --ring: #00ff9f;
   --chart-1: #00ff9f;
   --chart-2: #00d4ff;
   --chart-3: #7c3aed;
   --chart-4: #f59e0b;
   --chart-5: #ef4444;
-  --sidebar: #001b36;
-  --sidebar-foreground: #fbffff;
+  --sidebar: #001020;
+  --sidebar-foreground: #f0f4f8;
   --sidebar-primary: #00ff9f;
-  --sidebar-primary-foreground: #011c37;
-  --sidebar-accent: #021d38;
-  --sidebar-accent-foreground: #fbffff;
-  --sidebar-border: #021d38;
+  --sidebar-primary-foreground: #000d1a;
+  --sidebar-accent: #001428;
+  --sidebar-accent-foreground: #f0f4f8;
+  --sidebar-border: #001428;
   --sidebar-ring: #00ff9f;
 }
 
 .dark {
   /* Modo escuro já é o padrão, mantendo a mesma paleta */
-  --background: #011c37;
-  --foreground: #fbffff;
-  --card: #001b36;
-  --card-foreground: #fbffff;
-  --popover: #001b36;
-  --popover-foreground: #fbffff;
+  --background: #000d1a;
+  --foreground: #f0f4f8;
+  --card: #001020;
+  --card-foreground: #f0f4f8;
+  --popover: #001020;
+  --popover-foreground: #f0f4f8;
   --primary: #00ff9f;
-  --primary-foreground: #011c37;
+  --primary-foreground: #000d1a;
   --secondary: #00d4ff;
-  --secondary-foreground: #011c37;
-  --muted: #021d38;
+  --secondary-foreground: #000d1a;
+  --muted: #001428;
   --muted-foreground: #8b9bb0;
   --accent: #00ff9f;
-  --accent-foreground: #011c37;
+  --accent-foreground: #000d1a;
   --destructive: #ff4444;
-  --border: #021d38;
-  --input: #001b36;
+  --border: #001428;
+  --input: #001020;
   --ring: #00ff9f;
   --chart-1: #00ff9f;
   --chart-2: #00d4ff;
   --chart-3: #7c3aed;
   --chart-4: #f59e0b;
   --chart-5: #ef4444;
-  --sidebar: #001b36;
-  --sidebar-foreground: #fbffff;
+  --sidebar: #001020;
+  --sidebar-foreground: #f0f4f8;
   --sidebar-primary: #00ff9f;
-  --sidebar-primary-foreground: #011c37;
-  --sidebar-accent: #021d38;
-  --sidebar-accent-foreground: #fbffff;
-  --sidebar-border: #021d38;
+  --sidebar-primary-foreground: #000d1a;
+  --sidebar-accent: #001428;
+  --sidebar-accent-foreground: #f0f4f8;
+  --sidebar-border: #001428;
   --sidebar-ring: #00ff9f;
 }
 
@@ -118,6 +118,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   }
 }
 
@@ -142,6 +143,57 @@
 .matrix-char {
   animation: matrix-fall linear infinite;
   color: #00ff9f;
-  text-shadow: 0 0 8px #00ff9f;
+  text-shadow: 0 0 8px #00ff9f, 0 0 12px #00ff9f80;
+}
+
+/* Glassmorphism Effects */
+.glass {
+  background: rgba(0, 16, 32, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 255, 159, 0.1);
+}
+
+.glass-hover {
+  transition: all 0.3s ease;
+}
+
+.glass-hover:hover {
+  background: rgba(0, 16, 32, 0.85);
+  border-color: rgba(0, 255, 159, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(0, 255, 159, 0.15);
+}
+
+/* Gradient Accents */
+.gradient-primary {
+  background: linear-gradient(135deg, #00ff9f 0%, #00d4ff 100%);
+}
+
+.gradient-card {
+  background: linear-gradient(135deg, #001020 0%, #001428 100%);
+}
+
+/* Smooth Transitions */
+* {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #001020;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #001428;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #00ff9f;
 }
 

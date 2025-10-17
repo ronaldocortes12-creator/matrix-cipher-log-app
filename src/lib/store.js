@@ -1,23 +1,48 @@
 import { create } from 'zustand'
 import { supabase } from './supabase'
 
-export const useAuthStore = create((set) => ({
+// Unified store for all app state
+export const useStore = create((set, get) => ({
+  // Auth state
   user: null,
   session: null,
   loading: true,
   
+  // User profile state
+  userProfile: null,
+  
+  // Progress state
+  lessons: [],
+  modules: [],
+  
+  // Actions
   setUser: (user) => set({ user }),
   setSession: (session) => set({ session }),
   setLoading: (loading) => set({ loading }),
+  setUserProfile: (profile) => set({ userProfile: profile }),
+  setLessons: (lessons) => set({ lessons }),
+  setModules: (modules) => set({ modules }),
   
   initialize: async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession()
       set({ session, user: session?.user ?? null, loading: false })
       
+      // Load user profile if logged in
+      if (session?.user) {
+        await get().loadUserProfile(session.user.id)
+        await get().loadProgress(session.user.id)
+      }
+      
       // Listen for auth changes
-      supabase.auth.onAuthStateChange((_event, session) => {
+      supabase.auth.onAuthStateChange(async (_event, session) => {
         set({ session, user: session?.user ?? null })
+        if (session?.user) {
+          await get().loadUserProfile(session.user.id)
+          await get().loadProgress(session.user.id)
+        } else {
+          set({ userProfile: null, lessons: [], modules: [] })
+        }
       })
     } catch (error) {
       console.error('Error initializing auth:', error)
@@ -25,20 +50,23 @@ export const useAuthStore = create((set) => ({
     }
   },
   
-  signOut: async () => {
-    await supabase.auth.signOut()
-    set({ user: null, session: null })
-  }
-}))
-
-export const useProgressStore = create((set) => ({
-  lessons: [],
-  modules: [],
-  loading: true,
-  
-  setLessons: (lessons) => set({ lessons }),
-  setModules: (modules) => set({ modules }),
-  setLoading: (loading) => set({ loading }),
+  loadUserProfile: async (userId) => {
+    if (!userId) return
+    
+    try {
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .single()
+      
+      if (error && error.code !== 'PGRST116') throw error
+      
+      set({ userProfile: data || null })
+    } catch (error) {
+      console.error('Error loading user profile:', error)
+    }
+  },
   
   loadProgress: async (userId) => {
     if (!userId) return
@@ -52,10 +80,9 @@ export const useProgressStore = create((set) => ({
       
       if (error) throw error
       
-      set({ lessons: progress || [], loading: false })
+      set({ lessons: progress || [] })
     } catch (error) {
       console.error('Error loading progress:', error)
-      set({ loading: false })
     }
   },
   
@@ -76,64 +103,18 @@ export const useProgressStore = create((set) => ({
       if (error) throw error
       
       // Reload progress after update
-      await useProgressStore.getState().loadProgress(userId)
+      await get().loadProgress(userId)
       
       return data
     } catch (error) {
       console.error('Error updating lesson progress:', error)
       throw error
     }
-  }
-}))
-
-export const useChatStore = create((set) => ({
-  messages: [],
-  loading: true,
-  
-  setMessages: (messages) => set({ messages }),
-  setLoading: (loading) => set({ loading }),
-  
-  addMessage: (message) => set((state) => ({
-    messages: [...state.messages, message]
-  })),
-  
-  loadMessages: async (userId) => {
-    if (!userId) return
-    
-    try {
-      const { data: messages, error } = await supabase
-        .from('chat_messages')
-        .select('*')
-        .eq('user_id', userId)
-        .order('created_at', { ascending: true })
-      
-      if (error) throw error
-      
-      set({ messages: messages || [], loading: false })
-    } catch (error) {
-      console.error('Error loading messages:', error)
-      set({ loading: false })
-    }
   },
   
-  saveMessage: async (userId, role, content) => {
-    try {
-      const { data, error } = await supabase
-        .from('chat_messages')
-        .insert({
-          user_id: userId,
-          role,
-          content
-        })
-        .select()
-      
-      if (error) throw error
-      
-      return data[0]
-    } catch (error) {
-      console.error('Error saving message:', error)
-      throw error
-    }
+  signOut: async () => {
+    await supabase.auth.signOut()
+    set({ user: null, session: null, userProfile: null, lessons: [], modules: [] })
   }
 }))
 

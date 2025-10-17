@@ -10,6 +10,10 @@ create table if not exists user_preferences (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users on delete cascade not null unique,
   has_seen_welcome boolean default false,
+  name text,
+  age integer,
+  crypto_experience text,
+  avatar_url text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null,
   updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
@@ -38,6 +42,7 @@ create policy "Users can update their own preferences"
 create table if not exists chat_messages (
   id uuid default gen_random_uuid() primary key,
   user_id uuid references auth.users on delete cascade not null,
+  lesson_day integer default 1,
   role text not null check (role in ('user', 'assistant')),
   content text not null,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
